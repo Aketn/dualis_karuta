@@ -274,8 +274,8 @@ def draw_centered_text(c: canvas.Canvas, x: float, y: float, w: float, h: float,
     else:
         use_font = ensure_font(font)
     c.setFont(use_font, size)
-    # テキストを枠内中央に複数行で収める
-    lines = simpleSplit(text, use_font, size, w - 6)  # 3pt マージン左右
+    # テキストを枠内中央に複数行で収める（CJK対応の折返し）
+    lines = wrap_text(c, use_font, size, text, w - 6)  # 3pt マージン左右
     if not lines:
         return
     if leading is None:
@@ -285,6 +285,29 @@ def draw_centered_text(c: canvas.Canvas, x: float, y: float, w: float, h: float,
     for i, line in enumerate(lines):
         tw = c.stringWidth(line, use_font, size)
         c.drawString(x + (w - tw)/2, start_y - i*leading, line)
+
+
+def wrap_text(c: canvas.Canvas, font_name: str, size: int, text: str, max_width: float) -> List[str]:
+    """日本語（CJK）を含む場合は文字単位で貪欲に改行し、含まない場合は simpleSplit を使用。"""
+    if not text:
+        return []
+    # スペースを含む英数字中心の文は simpleSplit で十分
+    if not has_cjk(text) and (" " in text or "\t" in text):
+        return simpleSplit(text, font_name, size, max_width)
+    # CJK を含む文は文字単位で改行
+    lines: List[str] = []
+    buf = ""
+    for ch in text:
+        trial = buf + ch
+        if c.stringWidth(trial, font_name, size) <= max_width:
+            buf = trial
+        else:
+            if buf:
+                lines.append(buf)
+            buf = ch
+    if buf:
+        lines.append(buf)
+    return lines
 
 
 def draw_picture_front(c: canvas.Canvas, page_cards: List[Dict], positions: List[Tuple[float, float]]):
@@ -377,5 +400,7 @@ def generate(pdf_path: str, csv_path: str):
 if __name__ == "__main__":
     root = os.path.dirname(os.path.abspath(__file__))
     csv_path = os.path.join(root, "JDC_karuta.csv")
-    out_pdf = os.path.join(root, "DUALIS_karuta_print.pdf")
+    out_dir = os.path.join(root, "output")
+    os.makedirs(out_dir, exist_ok=True)
+    out_pdf = os.path.join(out_dir, "DUALIS_karuta_print.pdf")
     generate(out_pdf, csv_path)

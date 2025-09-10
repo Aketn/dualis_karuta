@@ -50,7 +50,7 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 
 ## 出力
 
-- `DUALIS_karuta_print.pdf` (複数ページ: 絵札A/絵札B/読み札A/読み札B の順)
+- `output/DUALIS_karuta_print.pdf` (複数ページ: 絵札A/絵札B/読み札A/読み札B の順)
 
 ## ライセンス
 

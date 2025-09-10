@@ -61,7 +61,7 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 
 - number: 分類番号（例: `000`, `007` など）。数字以外が含まれても動作しますが、範囲計算は数字のみ抽出します。
 - name: 名称（日本語OK）。日本語フォントで自動表示されます。
-- color_code: `#RRGGBB` 形式のカラーコード。未指定なら `number` の3桁目で自動着色（簡易マップ）
+- color_code: `#RRGGBB` 形式のカラーコード。未指定なら「第一次区分（先頭の桁）」で自動着色（簡易マップ）
 - font: フォント名。存在しない場合は自動フォールバック
   - 日本語を含むテキストは `fonts/` 配下の TTF/OTF（HaranoAji等）があればそれを優先
   - ない場合、ReportLab内蔵CIDフォント `HeiseiMin-W3` を使用
@@ -77,6 +77,23 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 001,知識・学問・学術,#007AFF,Helvetica,28,false,
 009,書誌学,#FF9F0A,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
 ```
+
+### 第一次区分ごとの色設定の場所（コード）
+
+- ファイル: `generate_pdf.py`
+- 定数: `FIRST_DIVISION_COLOR`
+  - 0〜9 のキーに対して `#RRGGBB` を割り当てます。
+  - 例（既定）:
+    - 0類: `#8E8E93`（灰色）→ 000〜099 はすべて灰色
+    - 1類: `#007AFF`（青）→ 100〜199
+    - 2類: `#34C759`（緑）→ 200〜299
+    - …（必要に応じて変更可）
+
+### CSVで色を個別に上書きする方法
+
+- `color_code` 列に `#RRGGBB` を指定すると、`FIRST_DIVISION_COLOR` より優先されます。
+- 例: `007` を特別に赤にしたい場合は、該当行の `color_code` を `#FF0000` に設定。
+- 何も指定しない場合は、番号の先頭桁に基づく自動配色が適用されます。
 
 ## PDFレイアウトと表裏設計
 

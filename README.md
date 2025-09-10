@@ -46,7 +46,8 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 009,書誌学,#FF9F0A,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
 ```
 
-- color_code は `#RRGGBB`。未指定時は 3 桁目の数字に応じて自動着色。
+- color_code は `#RRGGBB`。未指定時は「第一次区分（先頭の桁）」に応じて自動着色。
+- 自動配色の定義場所: `generate_pdf.py` の `FIRST_DIVISION_COLOR`
 - font はシステムに存在しない場合、Helvetica にフォールバックします。
 - point_size は数値 (推奨: 20〜36)。
 

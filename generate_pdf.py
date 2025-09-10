@@ -11,6 +11,8 @@ from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.utils import simpleSplit
 import csv
 import os
@@ -43,6 +45,72 @@ DIGIT_COLOR = {
     8: "#FFD60A",
     9: "#FF9F0A",
 }
+
+# 日本語フォント設定
+FONT_DIR = os.path.join(os.path.dirname(__file__), "fonts")
+JP_FALLBACK_NAME = "HaranoAjiMincho"  # 優先: 原ノ味明朝
+JP_FALLBACK_FILES = [
+    "HaranoAjiMincho-Regular.ttf",
+    "HaranoAjiGothic-Medium.ttf",
+    "HaranoAjiGothic-Regular.ttf",
+    "NotoSerifCJKjp-Regular.otf",
+    "NotoSansCJKjp-Regular.otf",
+    "SourceHanSerif-Regular.otf",
+    "SourceHanSans-Regular.otf",
+]
+CID_MINCHO = "HeiseiMin-W3"
+CID_GOTHIC = "HeiseiKakuGo-W5"
+JP_FONT_NAME: Optional[str] = None
+
+def ensure_fonts_dir():
+    try:
+        os.makedirs(FONT_DIR, exist_ok=True)
+    except Exception:
+        pass
+
+def register_japanese_font() -> Optional[str]:
+    """日本語フォントを登録して内部名を返す。
+    優先: fonts/ 配下の HaranoAji/Noto/SourceHan (TTF/OTF)
+    次善: 内蔵 CID フォント (HeiseiMin-W3)
+    失敗: None
+    """
+    ensure_fonts_dir()
+    # 1) ローカル TTF/OTF を探索
+    for fname in JP_FALLBACK_FILES:
+        fpath = os.path.join(FONT_DIR, fname)
+        if os.path.isfile(fpath):
+            try:
+                internal = os.path.splitext(os.path.basename(fpath))[0]
+                if internal not in pdfmetrics.getRegisteredFontNames():
+                    pdfmetrics.registerFont(TTFont(internal, fpath))
+                return internal
+            except Exception:
+                continue
+    # 2) 内蔵 CID フォントにフォールバック
+    try:
+        if CID_MINCHO not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(UnicodeCIDFont(CID_MINCHO))
+        return CID_MINCHO
+    except Exception:
+        return None
+
+def has_cjk(text: str) -> bool:
+    for ch in text:
+        code = ord(ch)
+        if (
+            0x3040 <= code <= 0x30FF  # Hiragana/Katakana
+            or 0x3400 <= code <= 0x4DBF  # CJK Ext A
+            or 0x4E00 <= code <= 0x9FFF  # CJK Unified
+            or 0xF900 <= code <= 0xFAFF  # CJK Compatibility
+        ):
+            return True
+    return False
+
+def is_registered_font(name: str) -> bool:
+    try:
+        return name in pdfmetrics.getRegisteredFontNames() or name in pdfmetrics.standardFonts
+    except Exception:
+        return False
 
 # デフォルトのボーナスゲーム候補
 BONUS_POOL = [
@@ -193,9 +261,21 @@ def draw_card_border(c: canvas.Canvas, x: float, y: float, w: float, h: float, c
 
 def draw_centered_text(c: canvas.Canvas, x: float, y: float, w: float, h: float, text: str, font: str, size: int, leading: Optional[float] = None):
     c.setFillColor(colors.black)
-    c.setFont(font, size)
+    # 日本語が含まれる場合はJPフォントを使用
+    use_font = font
+    if has_cjk(text):
+        global JP_FONT_NAME
+        if JP_FONT_NAME is None:
+            JP_FONT_NAME = register_japanese_font()
+        if JP_FONT_NAME and is_registered_font(JP_FONT_NAME):
+            use_font = JP_FONT_NAME
+        else:
+            use_font = ensure_font(font)
+    else:
+        use_font = ensure_font(font)
+    c.setFont(use_font, size)
     # テキストを枠内中央に複数行で収める
-    lines = simpleSplit(text, font, size, w - 6)  # 3pt マージン左右
+    lines = simpleSplit(text, use_font, size, w - 6)  # 3pt マージン左右
     if not lines:
         return
     if leading is None:
@@ -203,7 +283,7 @@ def draw_centered_text(c: canvas.Canvas, x: float, y: float, w: float, h: float,
     text_height = leading * len(lines)
     start_y = y + (h - text_height)/2 + (len(lines)-1)*leading
     for i, line in enumerate(lines):
-        tw = c.stringWidth(line, font, size)
+        tw = c.stringWidth(line, use_font, size)
         c.drawString(x + (w - tw)/2, start_y - i*leading, line)
 
 

@@ -13,6 +13,21 @@
 - CSV: `JDC_karuta.csv` を編集して番号や名称、色、フォント等を記入します。
 - タスク: `Ctrl+Shift+B` で `pdf-generator` を実行。`DUALIS_karuta_print.pdf` が出力されます。
 
+### 日本語フォントについて
+
+- 既定のHelveticaは日本語グリフを含まないため、日本語を含むテキストには以下の優先順位でフォールバックします。
+  1. `fonts/` ディレクトリに配置した TTF/OTF（推奨: 原ノ味フォント）
+  - 例: `fonts/HaranoAjiMincho-Regular.ttf` など
+  1. ReportLab の内蔵CIDフォント（`HeiseiMin-W3` など）
+- 推奨: 原ノ味フォントを下記のように配置してください。
+
+```bash
+mkdir -p fonts
+# 例: HaranoAji の TTF/OTF を配置
+# fonts/HaranoAjiMincho-Regular.ttf
+# fonts/HaranoAjiGothic-Medium.ttf
+```
+
 ## CSV フォーマット
 
 ```csv

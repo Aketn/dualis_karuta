@@ -16,6 +16,36 @@
         "isDefault": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "pdf-generator: CSV=JDC_karuta.csv",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "generate_pdf.py",
+        "JDC_karuta.csv",
+        "output"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "pdf-generator: CSV=csv/JDC_2nd_division_XY0.csv",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "generate_pdf.py",
+        "csv/JDC_2nd_division_XY0.csv",
+        "output"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
     }
   ]
 }

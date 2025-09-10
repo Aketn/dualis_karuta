@@ -24,6 +24,7 @@ DUALISかるた/
 │  └─ tasks.json             # VS Codeタスク（build: pdf-generator）
 ├─ fonts/                    # 日本語フォント(TTF/OTF)を配置する場所（HaranoAji等）
 ├─ output/                   # 生成PDFの出力先
+├─ csv/                      # CSVバリエーションを入れるフォルダ
 ├─ Docs/
 │  └─ WORKSPACE_GUIDE.md     # 本ドキュメント
 └─ README.md                 # クイックスタート
@@ -43,10 +44,17 @@ DUALISかるた/
 
 - CSVを編集: `JDC_karuta.csv` をUTF-8で編集し、番号・名称・色・フォント等を更新
 - 生成: VS Codeで Ctrl+Shift+B（タスク: pdf-generator）
-- 出力先: `output/DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
-  - 例: `output/DUALIS_karuta_print_000-990_20250910.pdf`
+- 出力先: `<CSV名>__DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
+  - 例: `JDC_2nd_division_XY0__DUALIS_karuta_print_000-990_20250910.pdf`
   - 範囲はCSV内の `number` から数字を抽出して最小-最大を付与（見つからなければ `ALL`）
 - 印刷設定: 両面印刷（長辺綴じ）を選択。裏面は行ごとに左右反転配置済みで、表裏がぴったり合う設計です。
+
+- 複数CSVの使い分け:
+  - スクリプトは引数でCSVと出力先を指定可能: `python generate_pdf.py <csv_path> <out_dir>`
+  - 例: `python generate_pdf.py csv/JDC_2nd_division_XY0.csv output`
+  - VS Code タスク:
+    - `pdf-generator: CSV=JDC_karuta.csv`
+    - `pdf-generator: CSV=csv/JDC_2nd_division_XY0.csv`
 
 ## CSV仕様（JDC_karuta.csv）
 
@@ -125,7 +133,7 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 
 ## 出力ファイル名のルール
 
-- 形式: `DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
+- 形式: `<CSV名>__DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
   - 範囲: CSVの `number` から数字だけを抽出して最小-最大（ゼロ埋め）。数字が見つからない場合 `ALL`
   - 日付: 生成日を `YYYYMMDD` で付与
 

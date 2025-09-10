@@ -34,9 +34,10 @@ ROWS = 5
 DEFAULT_FONT = "Helvetica"
 DEFAULT_POINT = 28
 
-# 3桁目の数字→色の簡易マップ (fallback)
-DIGIT_COLOR = {
-    0: "#8E8E93",
+# 第一次区分（先頭の桁 0〜9）→色の簡易マップ（fallback）
+# 例: 000〜099 は 0類 → 灰色、100〜199 は 1類 → 青、...
+FIRST_DIVISION_COLOR = {
+    0: "#8E8E93",  # 0類: 灰色（要求に合わせて 000〜099 はすべて灰色）
     1: "#007AFF",
     2: "#34C759",
     3: "#FF9500",
@@ -173,11 +174,13 @@ def load_cards(csv_path: str) -> List[Dict]:
             is_bonus_game = str(row.get('is_bonus_game') or '').strip().lower() in {"true", "1", "yes", "y"}
             bonus_game_name = (row.get('bonus_game_name') or '').strip()
 
-            # 色未指定時は3桁目で着色 (例: 007 → 7)
+            # 色未指定時は第一次区分（先頭の桁）で着色
+            # 例: 000〜099 → 0類（灰色）、120 → 1類（青）
             if not color_code:
                 try:
-                    third_digit = int(number[-1]) if number else 0
-                    color_code = DIGIT_COLOR.get(third_digit, '#000000')
+                    digits_only = re.sub(r"[^0-9]", "", number or "")
+                    first_div = int(digits_only[0]) if digits_only else 0
+                    color_code = FIRST_DIVISION_COLOR.get(first_div, '#000000')
                 except Exception:
                     color_code = '#000000'
 
@@ -257,7 +260,7 @@ def chunk(lst: List, n: int) -> List[List]:
 def draw_card_border(c: canvas.Canvas, x: float, y: float, w: float, h: float, color_hex: str):
     r, g, b = hex_to_rgb(color_hex)
     c.setStrokeColorRGB(r, g, b)
-    c.setLineWidth(1)
+    c.setLineWidth(8)
     c.rect(x, y, w, h, stroke=1, fill=0)
 
 
@@ -395,8 +398,14 @@ def generate(pdf_path: str, csv_path: str):
 
 if __name__ == "__main__":
     root = os.path.dirname(os.path.abspath(__file__))
+    # 引数: [CSVパス] [出力ディレクトリ]
+    # 例: python generate_pdf.py csv/JDC_2nd_division_XY0.csv output
     csv_path = os.path.join(root, "JDC_karuta.csv")
     out_dir = os.path.join(root, "output")
+    if len(sys.argv) >= 2 and sys.argv[1].strip():
+        csv_path = os.path.join(root, sys.argv[1]) if not os.path.isabs(sys.argv[1]) else sys.argv[1]
+    if len(sys.argv) >= 3 and sys.argv[2].strip():
+        out_dir = os.path.join(root, sys.argv[2]) if not os.path.isabs(sys.argv[2]) else sys.argv[2]
     os.makedirs(out_dir, exist_ok=True)
     # 出力範囲 (カード番号の最小-最大) を算出し、出力日を付与
     try:
@@ -426,6 +435,8 @@ if __name__ == "__main__":
     # 念のためサニタイズ
     range_str = re.sub(r"[^0-9A-Za-z\-]", "", range_str)
     date_str = re.sub(r"[^0-9]", "", date_str)
-    out_name = f"DUALIS_karuta_print_{range_str}_{date_str}.pdf"
+    # CSVファイル名を接頭に入れてバージョンを識別（拡張子除去）
+    csv_base = os.path.splitext(os.path.basename(csv_path))[0]
+    out_name = f"{csv_base}__DUALIS_karuta_print_{range_str}_{date_str}.pdf"
     out_pdf = os.path.join(out_dir, out_name)
     generate(out_pdf, csv_path)

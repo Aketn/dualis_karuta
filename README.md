@@ -13,6 +13,8 @@
 - CSV: `JDC_karuta.csv` を編集して番号や名称、色、フォント等を記入します。
 - タスク: `Ctrl+Shift+B` で `pdf-generator` を実行。`DUALIS_karuta_print.pdf` が出力されます。
 
+より詳しい説明は `Docs/WORKSPACE_GUIDE.md` を参照してください。
+
 ### 日本語フォントについて
 
 - 既定のHelveticaは日本語グリフを含まないため、日本語を含むテキストには以下の優先順位でフォールバックします。

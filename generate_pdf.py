@@ -375,23 +375,17 @@ def generate(pdf_path: str, csv_path: str):
 
     pages = paginate(cards)
 
-    # 絵札 A 面
+    # 絵札: ページ毎に A 面→B 面 を交互出力（両面印刷対応）
     for page_cards in pages:
         draw_picture_front(c, page_cards, positions)
         c.showPage()
-
-    # 絵札 B 面（裏）
-    for page_cards in pages:
         draw_picture_back(c, page_cards, positions)
         c.showPage()
 
-    # 読み札 A 面
+    # 読み札: ページ毎に A 面→B 面 を交互出力（両面印刷対応）
     for page_cards in pages:
         draw_reading_front(c, page_cards, positions)
         c.showPage()
-
-    # 読み札 B 面（裏）
-    for page_cards in pages:
         draw_reading_back(c, page_cards, positions)
         c.showPage()
 

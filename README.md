@@ -50,7 +50,10 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 
 ## 出力
 
-- `output/DUALIS_karuta_print.pdf` (複数ページ: 絵札A/絵札B/読み札A/読み札B の順)
+- `output/DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
+  - 例: `output/DUALIS_karuta_print_000-009_20250910.pdf`
+  - 範囲はCSV内のnumberを正規表現で抽出して最小-最大を付与（数字が無い場合はALL）
+  - 複数ページ: 絵札A/絵札B/読み札A/読み札B の順
 
 ## ライセンス
 

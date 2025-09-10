@@ -17,6 +17,8 @@ from reportlab.lib.utils import simpleSplit
 import csv
 import os
 import sys
+import re
+from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 
 PAGE_SIZE = A4  # (595.275..., 841.889...)
@@ -402,5 +404,34 @@ if __name__ == "__main__":
     csv_path = os.path.join(root, "JDC_karuta.csv")
     out_dir = os.path.join(root, "output")
     os.makedirs(out_dir, exist_ok=True)
-    out_pdf = os.path.join(out_dir, "DUALIS_karuta_print.pdf")
+    # 出力範囲 (カード番号の最小-最大) を算出し、出力日を付与
+    try:
+        cards_preview = load_cards(csv_path)
+        nums: List[int] = []
+        raw_values: List[str] = []
+        for c in cards_preview:
+            raw = (c.get('number') or '').strip()
+            raw_values.append(raw)
+            digits = re.sub(r"[^0-9]", "", raw)
+            if digits:
+                try:
+                    nums.append(int(digits))
+                except Exception:
+                    pass
+        if nums:
+            nmin, nmax = min(nums), max(nums)
+            # 桁数は3桁を基本に、範囲がより長い場合はその桁数に合わせる
+            width = max(3, len(str(nmax)))
+            range_str = f"{str(nmin).zfill(width)}-{str(nmax).zfill(width)}"
+        else:
+            range_str = "ALL"
+    except Exception:
+        range_str = "ALL"
+
+    date_str = datetime.now().strftime("%Y%m%d")
+    # 念のためサニタイズ
+    range_str = re.sub(r"[^0-9A-Za-z\-]", "", range_str)
+    date_str = re.sub(r"[^0-9]", "", date_str)
+    out_name = f"DUALIS_karuta_print_{range_str}_{date_str}.pdf"
+    out_pdf = os.path.join(out_dir, out_name)
     generate(out_pdf, csv_path)

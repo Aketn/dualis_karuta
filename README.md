@@ -35,17 +35,18 @@ mkdir -p fonts
 ```csv
 number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 000,総記,#8E8E93,Helvetica,28,false,
-001,知識・学問・学術,#007AFF,Helvetica,28,false,
-002,団体,#34C759,Helvetica,28,false,
+010,図書館、図書館情報学,#007AFF,Helvetica,28,false,
+590,家政学、生活科学,#AF52DE,Helvetica,28,false,
 003,辞典,#FF9500,Helvetica,28,false,
 004,論文集,#FF2D55,Helvetica,28,false,
 005,逐次刊行物,#AF52DE,Helvetica,28,false,
 006,年鑑・貴重書,#5AC8FA,Helvetica,28,false,
-007,ジャーナリズム・新聞,#FF3B30,Helvetica,28,false,
-008,叢書・全集・選集,#FFD60A,Helvetica,28,false,
-009,書誌学,#FF9F0A,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
+070,ジャーナリズム・新聞,#FF3B30,Helvetica,28,false,
+080,叢書・全集・選集,#FFD60A,Helvetica,28,false,
+090,貴重書、郷土資料、その他の特別コレクション,#FF9F0A,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
 ```
 
+- number は原則3桁（第二分類はXY0）。
 - color_code は `#RRGGBB`。未指定時は「第一次区分（先頭の桁）」に応じて自動着色。
 - 自動配色の定義場所: `generate_pdf.py` の `FIRST_DIVISION_COLOR`
 - font はシステムに存在しない場合、Helvetica にフォールバックします。

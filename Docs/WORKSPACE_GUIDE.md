@@ -44,7 +44,7 @@ DUALISかるた/
 - CSVを編集: `JDC_karuta.csv` をUTF-8で編集し、番号・名称・色・フォント等を更新
 - 生成: VS Codeで Ctrl+Shift+B（タスク: pdf-generator）
 - 出力先: `output/DUALIS_karuta_print_<範囲>_<YYYYMMDD>.pdf`
-  - 例: `output/DUALIS_karuta_print_000-009_20250910.pdf`
+  - 例: `output/DUALIS_karuta_print_000-990_20250910.pdf`
   - 範囲はCSV内の `number` から数字を抽出して最小-最大を付与（見つからなければ `ALL`）
 - 印刷設定: 両面印刷（長辺綴じ）を選択。裏面は行ごとに左右反転配置済みで、表裏がぴったり合う設計です。
 
@@ -59,7 +59,7 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 
 各列の意味:
 
-- number: 分類番号（例: `000`, `007` など）。数字以外が含まれても動作しますが、範囲計算は数字のみ抽出します。
+- number: 分類番号。第二分類は「XY0」の3桁で統一（例: 総記=000、図書館=010、家政学=590）。数字以外が含まれても動作しますが、範囲計算は数字のみ抽出します。
 - name: 名称（日本語OK）。日本語フォントで自動表示されます。
 - color_code: `#RRGGBB` 形式のカラーコード。未指定なら「第一次区分（先頭の桁）」で自動着色（簡易マップ）
 - font: フォント名。存在しない場合は自動フォールバック
@@ -74,8 +74,8 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 ```csv
 number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 000,総記,#8E8E93,Helvetica,28,false,
-001,知識・学問・学術,#007AFF,Helvetica,28,false,
-009,書誌学,#FF9F0A,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
+010,図書館、図書館情報学,#007AFF,Helvetica,28,false,
+590,家政学、生活科学,#AF52DE,Helvetica,28,true,図書館の自由に関する宣言を読み上げる
 ```
 
 ### 第一次区分ごとの色設定の場所（コード）
@@ -154,7 +154,7 @@ number,name,color_code,font,point_size,is_bonus_game,bonus_game_name
 - 行列数: `COLS`, `ROWS`（面付け枚数を増減）
 - 余白/枠線太さ: `layout_positions` と `draw_card_border`（`setLineWidth`）
 - 文字サイズ/行間: CSVの `point_size`、`draw_centered_text` の `leading`
-- 色の既定マップ: `DIGIT_COLOR`
+- 色の既定マップ: `FIRST_DIVISION_COLOR`
 - ボーナスプール: `BONUS_POOL`
 - フォント: `fonts/` に任意フォントを追加、内部登録名はファイル名から決まります
 
